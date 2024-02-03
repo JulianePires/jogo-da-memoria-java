@@ -1,60 +1,84 @@
 package regras;
 
-import javax.swing.*;
+import java.awt.Color;
 import java.util.HashMap;
 import java.util.Map;
+import javax.swing.JButton;
 
 public class ControleBotoesSelecionados {
-    private String nomeBotao;
-    private Map<JButton, Boolean> referenciasBotoes;
-
-    public ControleBotoesSelecionados(){
-        this.referenciasBotoes = new HashMap<>();
+    
+    private String nmBotao;
+    private Map<JButton, EstadosBotoes> referenciaBotoes;
+    
+    public ControleBotoesSelecionados() {
+        this.referenciaBotoes = new HashMap<>();
     }
-
-    public String getNomeBotao() {
-        return nomeBotao;
+    public void executarAcaoBotoes(JButton botao, EstadosBotoes estado) {
+        alterarSelecao(botao, estado);
+        if (this.isTodasSelecionadas()) {
+            alterarEstadoTodosBotoes(EstadosBotoes.PARES_ENCONTRADOS);
+        } else {
+            alterarVisualizacaoBotao(botao);
+        }
     }
-
-    public void setNomeBotao(String nmBotao) {
-        this.nomeBotao = nomeBotao;
+    
+    private void alterarEstadoTodosBotoes(EstadosBotoes estado) {
+        for (JButton botao : this.referenciaBotoes.keySet()) {
+            alterarSelecao(botao, estado);
+            alterarVisualizacaoBotao(botao);
+        }
     }
-
-    public Map<JButton, Boolean> getReferenciasBotoes() {
-        return referenciasBotoes;
+    
+    
+    
+    public String getNmBotao() {
+        return nmBotao;
     }
-
-    public void setReferenciasBotoes(Map<JButton, Boolean> referenciasBotoes) {
-        this.referenciasBotoes = referenciasBotoes;
+    public void setNmBotao(String nmBotao) {
+        this.nmBotao = nmBotao;
     }
-
-    public void adicionarBotao(JButton botao){
-        this.referenciasBotoes.put(botao, Boolean.FALSE);
+    public Map<JButton, EstadosBotoes> getReferenciaBotoes() {
+        return referenciaBotoes;
     }
-
-    public void alterarSelecao(JButton botao, Boolean selecionado){
-        Boolean b = this.referenciasBotoes.get(botao);
-        b = selecionado;
+    public void setReferenciaBotoes(Map<JButton, EstadosBotoes> referenciaBotoes) {
+        this.referenciaBotoes = referenciaBotoes;
     }
-
-    public void botaoSelecionado(JButton botao){
-        Boolean b = this.referenciasBotoes.get(botao);
-        b = true;
+    public void adicionarBotao(JButton botao) {
+        this.referenciaBotoes.put(botao, EstadosBotoes.NORMAL);
+    }  
+    public void alterarSelecao(JButton botao, EstadosBotoes selecionado) {
+        this.referenciaBotoes.put(botao, selecionado);
     }
-
-    public void zerarSelecoes(){
-        this.referenciasBotoes.values().forEach((b) -> {
-            b = false;
-        });
+    
+    private void alterarVisualizacaoBotao(JButton botao) {
+        EstadosBotoes selecionado = this.referenciaBotoes.get(botao);
+        switch (selecionado) {
+            case NORMAL: // Cinza, não exibe texto
+                botao.setBackground(null);
+                botao.setText("Jogo");
+                break;
+            case SELECIONADO: // Exibir texto, mudar a cor
+                botao.setBackground(Color.green);
+                botao.setText(this.nmBotao);
+                break;
+            case PARES_ENCONTRADOS: // Mudar a cor, exibir o texto
+                botao.setBackground(Color.MAGENTA);
+                botao.setText(this.nmBotao);
+                botao.setEnabled(false);
+                break;
+        }
     }
-
-    public Boolean estaoTodasSelecionadas() {
-        for (Boolean b : this.referenciasBotoes.values()) {
-            if (!b) {
+    
+    public void zerarSelecoes() {
+       alterarEstadoTodosBotoes(EstadosBotoes.NORMAL);
+    }
+    public Boolean isTodasSelecionadas() {
+        for (EstadosBotoes b : this.referenciaBotoes.values()) {
+            if (b != EstadosBotoes.SELECIONADO) {
+                // Não foram todos selecionados
                 return false;
             }
         }
         return true;
     }
-    
 }
